@@ -1,19 +1,23 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- master
+- main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'windows-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.x.x'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- script: dotnet build --configuration Release
+  displayName: 'Build Project'
+
+- script: dotnet test
+  displayName: 'Run Tests'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: '<Azure Subscription Name>'
+    appName: '<Your Web App Name>'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
